@@ -1,0 +1,27 @@
+<div class="container">
+  <section class="banner">
+    <div class="overlay">
+      <div class="content">
+        <h1>Decentralized Decisions Start Here</h1>
+        <p>No managers. No secrets. Just collective action on-chain.</p>
+      </div>
+    </div>
+  </section>
+  <section class="features">
+    <h1>Features</h1>
+    <owl-carousel-o [options]="customOptions">
+      <ng-container *ngFor="let feature of features">
+        <ng-template carouselSlide>
+          <div class="feature-card">
+            <i class="{{ feature.icon }}"></i>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        </ng-template>
+      </ng-container>
+    </owl-carousel-o>
+  </section>
+  <section class="connect-now">
+    <button (click)="connectWallet()">Start Voting</button>
+  </section>
+</div>

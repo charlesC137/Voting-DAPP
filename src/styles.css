@@ -1,1 +1,115 @@
-/* You can add global styles to this file, and also import other style files */
+@import "ngx-toastr/toastr";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+app-root {
+  width: 100vw;
+  height: 100vh;
+}
+
+:root {
+  --bg-color: #f9f9f9;
+  --card-bg: #ffffff;
+  --primary: #0057ff;
+  --secondary: #00b894;
+  --text: #2d2d2d;
+  --border: #e0e0e0;
+  --error: #e74c3c;
+  --success: #2ecc71;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100vh;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  font-family: "Work Sans", sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-color);
+  color: var(--text);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-size: 14px;
+  color: var(--text);
+  background-color: transparent;
+}
+
+a {
+  cursor: pointer;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 0.5px solid transparent;
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+a:hover {
+  color: var(--secondary) !important;
+}
+
+a:visited {
+  color: var(--text);
+}
+
+input,
+select {
+  outline: none;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  background-color: var(--bg-color);
+  color: var(--text);
+}
+
+select {
+  cursor: pointer;
+}
+
+i {
+  color: var(--text);
+}
+
+.toast-success {
+  border-left: 4px solid var(--success) !important;
+  background-color: var(--card-bg) !important;
+  color: var(--success) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.toast-error {
+  border-left: 4px solid var(--error) !important;
+  background-color: var(--card-bg) !important;
+  color: var(--error) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.toast-title {
+  font-weight: 600;
+  color: var(--text) !important;
+}
+
+.toast-message {
+  color: var(--text) !important;
+  font-size: 0.95rem;
+}
+
+.toast-progress {
+  background-color: var(--primary) !important;
+  height: 3px;
+  opacity: 0.85;
+}

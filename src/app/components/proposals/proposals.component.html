@@ -1,0 +1,205 @@
+<div *ngIf="initComponent" class="vote-loading big"></div>
+
+<div class="container" *ngIf="!initComponent">
+  <section class="top">
+    <a routerLink="/"><i class="fas fa-house"></i> <span>Home</span></a>
+    <i class="fas fa-chevron-right"></i>
+    <i class="fas fa-handshake"></i>
+    <span>Proposals</span>
+  </section>
+
+  <section class="proposals">
+    <div class="proposal-top">
+      <select id="filter" [(ngModel)]="selectedFilter" (change)="applySearch()">
+        <option value="all">All</option>
+        <option value="voted">Voted</option>
+        <option value="unvoted">Unvoted</option>
+        <option value="popular">Popular</option>
+        <option value="open">Open</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search by {{ searchFilter }}"
+          [(ngModel)]="searchText"
+          (ngModelChange)="applySearch()"
+        />
+        <select id="search-filter" [(ngModel)]="searchFilter">
+          <option value="id">By Proposal ID</option>
+          <option value="title">By Proposal Title</option>
+          <option value="proposer">By Proposer Address</option>
+        </select>
+      </div>
+
+      <button (click)="toggleAddModal()">Create Proposal</button>
+      <button class="disconnect-wallet-btn" (click)="disconnectAccount()">
+        Disconnect Wallet
+      </button>
+    </div>
+
+    <h1>{{ selectedFilter }}</h1>
+
+    <div class="proposal-grid">
+      <div class="proposal" *ngFor="let proposal of visibleProposals">
+        <div class="id">
+          Proposal ID: <span>{{ proposal.id }}</span>
+        </div>
+        <div class="name">Title: {{ proposal.title }}</div>
+        <div class="proposer">
+          Proposed By: <span>{{ proposal.proposer }}</span>
+        </div>
+        <div class="status">Status: {{ setStatus(proposal) }}</div>
+        <div class="deadline">
+          Closes by:
+          <span>{{ formatTimestampToDate(proposal.deadline) }} </span>
+        </div>
+        <div class="vote-count">
+          <span>Votes for: {{ proposal.votesForCount }}</span>
+          <span>Votes against: {{ proposal.votesAgainstCount }}</span>
+        </div>
+        <div class="btn">
+          <button (click)="toggleVoteModal(proposal.id)">View More</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pagination">
+    <button (click)="goToFirstPage()">
+      <i
+        class="fas fa-angles-left"
+        [class.dim]="this.totalPages < 2 || this.currentPage === 1"
+      ></i>
+    </button>
+    <button (click)="goToPreviousPage()">
+      <i class="fas fa-chevron-left" [class.dim]="this.currentPage === 1"></i>
+    </button>
+    <div>{{ this.currentPage }}</div>
+    <button (click)="goToNextPage()">
+      <i
+        class="fas fa-chevron-right"
+        [class.dim]="
+          this.currentPage === this.totalPages || this.totalPages === 0
+        "
+      ></i>
+    </button>
+    <button (click)="goToLastPage()">
+      <i
+        class="fas fa-angles-right"
+        [class.dim]="
+          this.totalPages < 2 || this.currentPage === this.totalPages
+        "
+      ></i>
+    </button>
+  </section>
+
+  <!-- modals section -->
+
+  <section class="modal" [class.show]="showVoteModal">
+    <div class="modal-backdrop" *ngIf="viewMoreProposal">
+      <div class="modal-proposal">
+        <button (click)="toggleVoteModal()" class="quit-modal-btn">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="id">
+          Proposal ID: <span>{{ viewMoreProposal.id }}</span>
+        </div>
+        <div class="name">Title: {{ viewMoreProposal.title }}</div>
+        <div class="proposer">
+          Proposed By: <span>{{ viewMoreProposal.proposer }}</span>
+        </div>
+
+        <div class="description">
+          Description:
+          <span>{{ viewMoreProposal.description }}</span>
+        </div>
+
+        <div class="status">Status: {{ setStatus(viewMoreProposal) }}</div>
+        <div class="deadline">
+          Closes by:
+          <span>{{ formatTimestampToDate(viewMoreProposal.deadline) }}</span>
+        </div>
+        <div class="vote-count">
+          <span>Votes for: {{ viewMoreProposal.votesForCount }}</span>
+          <span>Votes against: {{ viewMoreProposal.votesAgainstCount }}</span>
+        </div>
+
+        <div
+          class="vote-btns"
+          *ngIf="!viewMoreProposal.hasVoted && !voteLoading"
+        >
+          <button
+            class="vote-for"
+            (click)="voteProposal(true, viewMoreProposal.id)"
+          >
+            Vote For
+          </button>
+          <button
+            class="vote-against"
+            (click)="voteProposal(false, viewMoreProposal.id)"
+          >
+            Vote Against
+          </button>
+        </div>
+
+        <div class="vote-status">
+          <div
+            class="status-msg"
+            *ngIf="viewMoreProposal.hasVoted && !voteLoading"
+          >
+            {{ setVoteText(viewMoreProposal.hasVoted) }}
+          </div>
+          <div class="vote-loading" *ngIf="voteLoading"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal" [class.show]="showAddModal">
+    <div class="modal-add">
+      <form [formGroup]="proposalForm" (ngSubmit)="createProposal()">
+        <div>
+          <span>Title:</span>
+          <input
+            type="text"
+            placeholder="Input Title"
+            formControlName="title"
+          />
+        </div>
+
+        <div>
+          <span>Input Voting Deadline:</span>
+          <input
+            type="date"
+            [min]="minDate"
+            [max]="maxDate"
+            formControlName="deadline"
+          />
+        </div>
+
+        <div class="decr-header">
+          <span>Proposal Description</span>
+          <span>Word Count: {{ descriptionWordCount }}/100</span>
+        </div>
+
+        <textarea
+          cols="40"
+          rows="10"
+          placeholder="Briefly explain what you're proposing. Keep it between 10 - 100 words."
+          formControlName="description"
+        ></textarea>
+
+        <div class="modal-add-btns">
+          <button class="back" type="button" (click)="toggleAddModal()">
+            Back
+          </button>
+          <button class="create-proposal" type="submit">Create Proposal</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
